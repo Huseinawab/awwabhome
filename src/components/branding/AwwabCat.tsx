@@ -78,7 +78,7 @@ const POSES: Record<CatState, ReactNode> = {
 const SIZES = { xs: 24, sm: 32, md: 96, lg: 144 } as const;
 
 export function AwwabCat({ lifeScore, state, size = "md", className = "", title }: {
-  lifeScore?: number | null; state?: CatState; size?: keyof typeof SIZES | number; className?: string; title?: string;
+  lifeScore?: number | null; state?: CatState; size?: keyof typeof SIZES | number; className?: string; title?: string | undefined;
 }) {
   const s = state ?? resolveCatState(lifeScore);
   const px = typeof size === "number" ? size : SIZES[size];
