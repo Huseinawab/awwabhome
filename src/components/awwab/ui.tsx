@@ -1,16 +1,16 @@
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import catResting from "@/assets/cat-resting.png";
-import catFocused from "@/assets/cat-focused.png";
-import catCurious from "@/assets/cat-curious.png";
+import { AwwabCat } from "@/components/branding/AwwabCat";
+import type { CatState } from "@/lib/branding/catStates";
 import type { TrendDir } from "@/lib/awwab/calc";
 import { setLang, useLang, useT } from "@/lib/awwab/i18n";
 
-const CATS = { resting: catResting, focused: catFocused, curious: catCurious };
+// Legacy moods map onto the shared cat poses.
+const CATS: Record<"resting" | "focused" | "curious", CatState> = { resting: "resting", focused: "steady", curious: "waking" };
 
-export function CatIllustration({ mood, className = "", alt }: { mood: keyof typeof CATS; className?: string; alt?: string }) {
+export function CatIllustration({ mood, state, className = "", alt }: { mood?: keyof typeof CATS; state?: CatState; className?: string; alt?: string }) {
   const t = useT();
-  return <img src={CATS[mood]} alt={alt ?? t("cat.alt")} width={816} height={816} className={`select-none ${className}`} draggable={false} />;
+  return <AwwabCat state={state ?? CATS[mood ?? "focused"]} size={96} title={alt ?? t("cat.alt")} className={`select-none ${className}`} />;
 }
 
 export function PageHeader({ eyebrow, title, subtitle, cat, children }: { eyebrow?: string; title: string; subtitle?: string; cat?: keyof typeof CATS; children?: ReactNode }) {

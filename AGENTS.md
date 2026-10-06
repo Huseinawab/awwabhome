@@ -16,3 +16,4 @@
 - Insights are deterministic (`insights.ts`), never AI.
 - Pages render client-side only (AppShell mount gate) because they depend on local date and localStorage.
 - `noUncheckedIndexedAccess` is off: config lookups by known IDs made it pure noise.
+- Cat mascot state comes only from `resolveCatState()` in `src/lib/branding/catStates.ts`, fed by the existing Life Score (current week); the cat is one hand-drawn SVG with five poses so it stays crisp at favicon size.

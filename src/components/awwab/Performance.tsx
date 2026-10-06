@@ -4,6 +4,7 @@ import { DOMAINS, inDomain, type DomainId } from "@/lib/awwab/config";
 import type { ActivityResult, Comparison } from "@/lib/awwab/calc";
 import type { Insight } from "@/lib/awwab/insights";
 import { actName, domainName, targetText, unitText, useT, locale, type T } from "@/lib/awwab/i18n";
+import { resolveCatState } from "@/lib/branding/catStates";
 import { Bar, CatIllustration, TrendChip, fmtScore } from "./ui";
 
 export function LifeScoreBlock({ c, prevLabel }: { c: Comparison; prevLabel: string }) {
@@ -17,7 +18,7 @@ export function LifeScoreBlock({ c, prevLabel }: { c: Comparison; prevLabel: str
           <p className="text-h1 mt-2">{t("common.notEnoughShort")}</p>
           <p className="mt-2 max-w-md text-sm text-muted-foreground">{t("life.noneBody")}</p>
         </div>
-        <CatIllustration mood="resting" className="h-28 w-28 shrink-0 sm:h-36 sm:w-36" />
+        <CatIllustration state="steady" className="h-28 w-28 shrink-0 sm:h-36 sm:w-36" />
       </section>
     );
   return (
@@ -38,7 +39,7 @@ export function LifeScoreBlock({ c, prevLabel }: { c: Comparison; prevLabel: str
           {t("life.basedOn", { n: c.current.recordedActivities, total: c.current.list.length })}
         </p>
       </div>
-      <CatIllustration mood="resting" className="h-28 w-28 shrink-0 sm:h-36 sm:w-36" />
+      <CatIllustration state={resolveCatState(score)} className="h-28 w-28 shrink-0 sm:h-36 sm:w-36" />
     </section>
   );
 }
