@@ -4,4 +4,4 @@
 - [x] Multi-language (ID default, EN) across all UI, persisted
 - [x] Editable habits: add/edit/archive/reactivate, versioned history, Settings page
 - [x] Tests for habit history + language
-- [ ] Restore original watercolor cat illustrations with five Life Score states and verify page rendering.
+- [x] Restore original watercolor cat illustrations with five Life Score states and verify page rendering.

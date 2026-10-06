@@ -17,5 +17,5 @@ export function AwwabCat({ lifeScore, state, size = "md", className = "", title 
 }
 
 export function AwwabAppIcon({ lifeScore, state, size = 64 }: { lifeScore?: number | null; state?: CatState; size?: number }) {
-  return <AwwabCat lifeScore={lifeScore} state={state} size={size} className="rounded-lg bg-cat-tile" />;
+  return <AwwabCat state={state ?? resolveCatState(lifeScore)} size={size} className="rounded-lg bg-cat-tile" />;
 }
