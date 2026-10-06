@@ -1,7 +1,6 @@
-import { renderToStaticMarkup } from "react-dom/server";
 import { useEffect } from "react";
 import type { CatState } from "@/lib/branding/catStates";
-import { AwwabAppIcon, AwwabCat } from "./AwwabCat";
+import { CAT_IMAGES, AwwabCat } from "./AwwabCat";
 
 export function AwwabWordmark({ className = "" }: { className?: string }) {
   return <span className={`font-display font-semibold tracking-wide ${className}`}>AWWAB</span>;
@@ -20,11 +19,9 @@ export function AwwabLogo({ state = "steady", symbolOnly, size = 32, className =
 /** Swaps the browser tab icon — re-runs only when the cat state changes, not on every score change. */
 export function useDynamicFavicon(state: CatState) {
   useEffect(() => {
-    const svg = renderToStaticMarkup(<AwwabAppIcon state={state} />);
-    const href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
     let link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
     if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.appendChild(link); }
-    link.type = "image/svg+xml";
-    link.href = href;
+    link.type = "image/webp";
+    link.href = CAT_IMAGES[state];
   }, [state]);
 }
