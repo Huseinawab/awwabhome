@@ -5,6 +5,7 @@ import { datedItems, upcoming, type DatedItem } from "@/lib/awwab/goals";
 import { useAppState } from "@/lib/awwab/store";
 import { meta, useToday } from "@/lib/awwab/useToday";
 import { PageHeader, Stepper } from "@/components/awwab/ui";
+import { useLang, useT } from "@/lib/awwab/i18n";
 
 export const Route = createFileRoute("/calendar")({
   head: () => meta("Calendar — AWWAB", "Goal deadlines, project dates and milestones in one monthly view."),
@@ -15,6 +16,8 @@ const TYPE_CLS: Record<DatedItem["type"], string> = { goal: "bg-rose-soft", proj
 
 function CalendarPage() {
   const today = useToday();
+  const t = useT();
+  useLang();
   const state = useAppState();
   const [anchor, setAnchor] = useState(today);
   const [selected, setSelected] = useState<DatedItem | null>(null);
@@ -28,15 +31,15 @@ function CalendarPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Calendar" title={month.label} subtitle="Important dates from your goals, projects and milestones.">
+      <PageHeader eyebrow={t("nav.calendar")} title={month.label} subtitle={t("cal.subtitle")}>
         <Stepper label={month.label} onPrev={() => setAnchor(previousPeriod(month).start)} onNext={() => setAnchor(nextPeriod(month).start)}>
-          <button className="btn btn-ghost" onClick={() => setAnchor(today)}>Today</button>
+          <button className="btn btn-ghost" onClick={() => setAnchor(today)}>{t("daily.today")}</button>
         </Stepper>
       </PageHeader>
 
       <div className="overflow-hidden rounded-lg border bg-cream">
         <div className="grid grid-cols-7 border-b text-center text-caption">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d} className="py-2">{d}</div>)}
+          {[0, 1, 2, 3, 4, 5, 6].map((d) => <div key={d} className="py-2">{t(`wd.${d}`)}</div>)}
         </div>
         <div className="grid grid-cols-7">
           {days.map((d) => {
@@ -60,42 +63,42 @@ function CalendarPage() {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-rose-soft" /> Goal</span>
-        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-orange-soft" /> Project</span>
-        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-beige" /> Milestone</span>
+        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-rose-soft" /> {t("type.goal")}</span>
+        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-orange-soft" /> {t("type.project")}</span>
+        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-beige" /> {t("type.milestone")}</span>
       </div>
 
       {selected && (
         <div className="surface mt-6 p-5">
-          <p className="text-caption capitalize">{selected.type}</p>
+          <p className="text-caption">{t(`type.${selected.type}`)}</p>
           <h2 className="text-h2">{selected.title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {formatLong(selected.date)}{selected.parent ? ` · in ${selected.parent}` : ""} · {selected.status.replace("_", " ")}
-            {!selected.done && selected.date < today ? " · Overdue" : ""}
+            {formatLong(selected.date)}{selected.parent ? t("cal.in", { p: selected.parent }) : ""} · {t(`status.${selected.status}`)}
+            {!selected.done && selected.date < today ? ` · ${t("common.overdue")}` : ""}
           </p>
           <div className="mt-3 flex gap-2">
-            <Link to="/goals" className="btn btn-soft">Open in Goals</Link>
-            <button className="btn btn-ghost" onClick={() => setSelected(null)}>Close</button>
+            <Link to="/goals" className="btn btn-soft">{t("cal.open")}</Link>
+            <button className="btn btn-ghost" onClick={() => setSelected(null)}>{t("common.close")}</button>
           </div>
         </div>
       )}
 
       <section className="mt-8">
-        <h2 className="text-h2 mb-3">Upcoming</h2>
+        <h2 className="text-h2 mb-3">{t("cal.upcoming")}</h2>
         {next.length ? (
           <ul className="surface divide-y">
             {next.map((i) => (
               <li key={i.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 px-5 py-3">
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{i.title}</p>
-                  <p className="text-xs capitalize text-muted-foreground">{i.type}{i.parent ? ` · ${i.parent}` : ""}</p>
+                  <p className="text-xs text-muted-foreground">{t(`type.${i.type}`)}{i.parent ? ` · ${i.parent}` : ""}</p>
                 </div>
                 <span className="text-sm text-muted-foreground">{formatShort(i.date)}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">Nothing upcoming. Add dates to goals, projects or milestones to see them here.</p>
+          <p className="text-sm text-muted-foreground">{t("cal.nothing")}</p>
         )}
       </section>
     </div>

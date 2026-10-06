@@ -6,6 +6,7 @@ import { addDays, formatShort, monthKey, periodFor, previousPeriod } from "@/lib
 import { goalProgress, goalStatus, isOverdue, milestonesOf, projectStatus, projectsOf } from "@/lib/awwab/goals";
 import { saveReview, useAppState } from "@/lib/awwab/store";
 import { meta, useToday } from "@/lib/awwab/useToday";
+import { domainName, useLang, useT } from "@/lib/awwab/i18n";
 import { TrendChip, fmtScore, PageHeader, Stepper } from "@/components/awwab/ui";
 
 export const Route = createFileRoute("/review")({
@@ -13,23 +14,19 @@ export const Route = createFileRoute("/review")({
   component: ReviewPage,
 });
 
-const PROMPTS = [
-  { key: "wentWell", label: "What went well?" },
-  { key: "difficult", label: "What was difficult?" },
-  { key: "change", label: "What should I change next month?" },
-  { key: "stop", label: "What should I stop doing?" },
-  { key: "continue", label: "What should I continue doing?" },
-] as const;
-type PromptKey = (typeof PROMPTS)[number]["key"];
+const PROMPTS = ["wentWell", "difficult", "change", "stop", "continue"] as const;
+type PromptKey = (typeof PROMPTS)[number];
 
 function ReviewPage() {
   const today = useToday();
+  const t = useT();
+  useLang();
   const state = useAppState();
   const [anchor, setAnchor] = useState(today);
   const month = periodFor("month", anchor);
   const key = monthKey(month.start);
   const c = useMemo(() => compare(month, state.entries, today), [state.entries, today, month.start]);
-  const name = (id: DomainId | undefined) => (id ? DOMAIN_BY_ID[id].name : null);
+  const name = (id: DomainId | undefined) => (id && DOMAIN_BY_ID[id] ? domainName(id, t) : null);
   const existing = state.reviews.find((r) => r.period === key);
   const prevReview = state.reviews.find((r) => r.period === monthKey(previousPeriod(month).start));
 
@@ -70,59 +67,59 @@ function ReviewPage() {
 
   return (
     <div className="space-y-10">
-      <PageHeader eyebrow="Monthly Review" title={month.label} subtitle="Look back, understand, reflect, look forward." cat="resting">
+      <PageHeader eyebrow={t("review.eyebrow")} title={month.label} subtitle={t("review.subtitle")} cat="resting">
         <Stepper label={month.label} onPrev={() => setAnchor(previousPeriod(month).start)} onNext={() => setAnchor(addDays(month.end, 1))} nextDisabled={month.end >= today} />
       </PageHeader>
 
       <section className="surface-strong grid gap-6 p-6 sm:grid-cols-3">
         <div>
-          <p className="text-caption">Life Score</p>
+          <p className="text-caption">{t("life.label")}</p>
           <p className="text-display mt-1 !text-6xl">{c.current.lifeScore === null ? "—" : fmtScore(c.current.lifeScore)}</p>
-          {c.current.lifeScore === null && <p className="text-sm text-muted-foreground">Not enough data.</p>}
+          {c.current.lifeScore === null && <p className="text-sm text-muted-foreground">{t("common.notEnough")}</p>}
         </div>
         <div>
-          <p className="text-caption">Previous month</p>
+          <p className="text-caption">{t("review.prevMonth")}</p>
           <p className="font-display mt-1 text-3xl font-semibold">{fmtScore(c.previous.lifeScore)}</p>
-          <div className="mt-2">{c.life ? <TrendChip t={c.life} /> : <span className="text-sm text-muted-foreground">No comparison</span>}</div>
+          <div className="mt-2">{c.life ? <TrendChip t={c.life} /> : <span className="text-sm text-muted-foreground">{t("review.noCompare")}</span>}</div>
         </div>
         <div className="space-y-2 text-sm">
-          <p><span className="text-caption block">Strongest</span>{name(c.strongest?.id) ?? "Not enough data"}</p>
-          <p><span className="text-caption block">Needs attention</span>{name(c.weakest?.id) ?? "Not enough data"}</p>
+          <p><span className="text-caption block">{t("review.strongest")}</span>{name(c.strongest?.id) ?? t("common.notEnoughShort")}</p>
+          <p><span className="text-caption block">{t("hl.attention")}</span>{name(c.weakest?.id) ?? t("common.notEnoughShort")}</p>
         </div>
       </section>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <section>
-          <h2 className="text-h2 mb-3">What went well</h2>
+          <h2 className="text-h2 mb-3">{t("review.wentWell")}</h2>
           <ul className="space-y-2 text-sm">
-            {c.strongest && <li>· Strongest area: <b>{name(c.strongest.id)}</b> ({fmtScore(c.strongest.score)})</li>}
-            {c.biggestImprovement && <li>· {name(c.biggestImprovement.id)} improved +{Math.round(c.biggestImprovement.diff)} pts</li>}
-            {completedProjects.map((p) => <li key={p.id}>· Completed project: <b>{p.title}</b></li>)}
-            {completedMs.length > 0 && <li>· {completedMs.length} milestone{completedMs.length > 1 ? "s" : ""} completed</li>}
-            {!c.strongest && !c.biggestImprovement && !completedProjects.length && !completedMs.length && <li className="text-muted-foreground">Nothing recorded yet for this month.</li>}
+            {c.strongest && <li>· {t("review.strongestArea")} <b>{name(c.strongest.id)}</b> ({fmtScore(c.strongest.score)})</li>}
+            {c.biggestImprovement && <li>· {t("review.improved", { d: name(c.biggestImprovement.id) ?? "", n: Math.round(c.biggestImprovement.diff) })}</li>}
+            {completedProjects.map((p) => <li key={p.id}>· {t("review.completedProject")} <b>{p.title}</b></li>)}
+            {completedMs.length > 0 && <li>· {t("review.msCompleted", { n: completedMs.length })}</li>}
+            {!c.strongest && !c.biggestImprovement && !completedProjects.length && !completedMs.length && <li className="text-muted-foreground">{t("review.nothing")}</li>}
           </ul>
         </section>
         <section>
-          <h2 className="text-h2 mb-3">Needs attention</h2>
+          <h2 className="text-h2 mb-3">{t("hl.attention")}</h2>
           <ul className="space-y-2 text-sm">
-            {c.biggestDecline && <li>· {name(c.biggestDecline.id)} declined {Math.round(c.biggestDecline.diff)} pts</li>}
-            {c.weakest && <li>· Lowest area: <b>{name(c.weakest.id)}</b> ({fmtScore(c.weakest.score)})</li>}
-            {overdue.map((m) => <li key={m.id}>· Overdue milestone: {m.title} ({formatShort(m.dueDate!)})</li>)}
-            {nearDeadline.map((p) => <li key={p.id}>· {p.title} is due {formatShort(p.targetDate!)}</li>)}
-            {!c.biggestDecline && !c.weakest && !overdue.length && !nearDeadline.length && <li className="text-muted-foreground">Nothing flagged.</li>}
+            {c.biggestDecline && <li>· {t("review.declined", { d: name(c.biggestDecline.id) ?? "", n: Math.round(c.biggestDecline.diff) })}</li>}
+            {c.weakest && <li>· {t("review.lowest")} <b>{name(c.weakest.id)}</b> ({fmtScore(c.weakest.score)})</li>}
+            {overdue.map((m) => <li key={m.id}>· {t("review.overdueMs", { t: m.title, d: formatShort(m.dueDate!) })}</li>)}
+            {nearDeadline.map((p) => <li key={p.id}>· {t("review.dueSoon", { t: p.title, d: formatShort(p.targetDate!) })}</li>)}
+            {!c.biggestDecline && !c.weakest && !overdue.length && !nearDeadline.length && <li className="text-muted-foreground">{t("review.nothingFlagged")}</li>}
           </ul>
         </section>
       </div>
 
       <section>
-        <h2 className="text-h2 mb-3">Goals</h2>
+        <h2 className="text-h2 mb-3">{t("review.goals")}</h2>
         {goals.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No goals yet.</p>
+          <p className="text-sm text-muted-foreground">{t("review.noGoals")}</p>
         ) : (
           <div className="overflow-x-auto rounded-lg border bg-cream">
             <table className="w-full text-sm">
               <thead className="text-caption text-left">
-                <tr><th className="px-4 py-2">Goal</th><th className="px-4 py-2">Previous</th><th className="px-4 py-2">Current</th><th className="px-4 py-2">Next milestone</th></tr>
+                <tr><th className="px-4 py-2">{t("col.goal")}</th><th className="px-4 py-2">{t("col.prev")}</th><th className="px-4 py-2">{t("col.cur")}</th><th className="px-4 py-2">{t("col.nextMs")}</th></tr>
               </thead>
               <tbody className="divide-y">
                 {goals.map((g) => {
@@ -145,28 +142,28 @@ function ReviewPage() {
       </section>
 
       <section>
-        <h2 className="text-h2 mb-3">Reflection</h2>
+        <h2 className="text-h2 mb-3">{t("review.reflection")}</h2>
         <div className="space-y-4">
           {PROMPTS.map((p) => (
-            <label key={p.key} className="block">
-              <span className="mb-1 block text-sm font-bold">{p.label}</span>
-              <textarea className="field" rows={3} value={form[p.key]} onChange={(e) => { setForm({ ...form, [p.key]: e.target.value }); setSaved("idle"); }} />
+            <label key={p} className="block">
+              <span className="mb-1 block text-sm font-bold">{t(`review.q.${p}`)}</span>
+              <textarea className="field" rows={3} value={form[p]} onChange={(e) => { setForm({ ...form, [p]: e.target.value }); setSaved("idle"); }} />
             </label>
           ))}
           <label className="block">
-            <span className="mb-1 block text-sm font-bold">My one focus for next month</span>
-            <input className="field" placeholder="e.g. Academic, or Finish AWWAB MVP" value={form.nextFocus} onChange={(e) => { setForm({ ...form, nextFocus: e.target.value }); setSaved("idle"); }} />
+            <span className="mb-1 block text-sm font-bold">{t("review.focus")}</span>
+            <input className="field" placeholder={t("review.focusPh")} value={form.nextFocus} onChange={(e) => { setForm({ ...form, nextFocus: e.target.value }); setSaved("idle"); }} />
           </label>
           <div className="flex items-center gap-3">
-            <button className="btn btn-primary" onClick={save}>{existing ? "Update review" : "Save review"}</button>
-            {saved === "saved" && <span className="text-sm text-muted-foreground">Saved.</span>}
+            <button className="btn btn-primary" onClick={save}>{existing ? t("review.update") : t("review.save")}</button>
+            {saved === "saved" && <span className="text-sm text-muted-foreground">{t("common.saved")}</span>}
           </div>
         </div>
       </section>
 
       {pastReviews.length > 0 && (
         <section>
-          <h2 className="text-h2 mb-3">Past reviews</h2>
+          <h2 className="text-h2 mb-3">{t("review.past")}</h2>
           <ul className="flex flex-wrap gap-2">
             {pastReviews.map((r) => (
               <li key={r.id}>
