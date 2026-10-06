@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BarChart3, CalendarDays, CalendarRange, Home, Lightbulb, NotebookPen, PenLine, Settings, Target } from "lucide-react";
 import { useT } from "@/lib/awwab/i18n";
 import { LangSwitch } from "./ui";
+import { useAuthUser } from "@/lib/awwab/sync";
 
 const NAV = [
   { to: "/home", key: "nav.home", icon: Home },
@@ -24,6 +25,7 @@ function useMounted() {
 export function AppShell({ children }: { children: ReactNode }) {
   const mounted = useMounted();
   const t = useT();
+  useAuthUser();
   return (
     <div className="min-h-screen md:grid md:grid-cols-[232px_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-screen flex-col border-r bg-cream px-4 py-8 md:flex">

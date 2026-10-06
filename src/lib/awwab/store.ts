@@ -87,30 +87,44 @@ let state: AppState = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
 
+function parseState(p: any): AppState {
+  const habits = arr<Habit>(p?.habits).filter(validHabit);
+  return {
+    version: 1,
+    entries: p?.entries && typeof p.entries === "object" ? p.entries : {},
+    goals: arr(p?.goals),
+    projects: arr(p?.projects),
+    milestones: arr(p?.milestones),
+    reviews: arr(p?.reviews),
+    habits: habits.length ? habits : systemHabits(),
+  };
+}
+
 function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (raw) {
-      const p = JSON.parse(raw) ?? {};
-      const habits = arr<Habit>(p.habits).filter(validHabit);
-      state = {
-        version: 1,
-        entries: p.entries && typeof p.entries === "object" ? p.entries : {},
-        goals: arr(p.goals),
-        projects: arr(p.projects),
-        milestones: arr(p.milestones),
-        reviews: arr(p.reviews),
-        habits: habits.length ? habits : systemHabits(),
-      };
-    }
+    if (raw) state = parseState(JSON.parse(raw) ?? {});
   } catch {
     state = EMPTY;
   }
 }
 
-function commit(next: AppState) {
+/** True when the device holds any user-entered data. */
+export const hasLocalData = (s: AppState) =>
+  Object.keys(s.entries).length > 0 || s.goals.length > 0 || s.reviews.length > 0 || s.habits.some((h) => !h.isSystem || h.versions.length > 1);
+
+/** Replace everything with a state loaded from the account (does not trigger a re-upload). */
+export function replaceState(raw: unknown) {
+  load();
+  commit(parseState(raw), false);
+}
+
+const commitListeners = new Set<(s: AppState) => void>();
+export const onCommit = (f: (s: AppState) => void) => { commitListeners.add(f); return () => { commitListeners.delete(f); }; };
+
+function commit(next: AppState, notifySync = true) {
   state = next;
   try {
     window.localStorage.setItem(KEY, JSON.stringify(state));
@@ -118,6 +132,7 @@ function commit(next: AppState) {
     /* storage full / unavailable */
   }
   listeners.forEach((l) => l());
+  if (notifySync) commitListeners.forEach((l) => l(state));
 }
 
 export function getState() {

@@ -7,6 +7,7 @@ import { actName, domainName, targetText, useT } from "@/lib/awwab/i18n";
 import { archiveHabit, createHabit, deleteHabit, habitHasHistory, reactivateHabit, rebalanceDomain, updateHabit, useAppState } from "@/lib/awwab/store";
 import { meta, useToday } from "@/lib/awwab/useToday";
 import { LangSwitch, PageHeader } from "@/components/awwab/ui";
+import { AccountCard } from "@/components/awwab/Account";
 
 export const Route = createFileRoute("/settings")({
   head: () => meta("Settings — AWWAB", "Language and the habits you track."),
@@ -26,6 +27,7 @@ function SettingsPage() {
   return (
     <div className="space-y-10">
       <PageHeader eyebrow={t("nav.settings")} title={t("nav.settings")} subtitle={t("settings.subtitle")} />
+      <AccountCard />
       <section className="surface p-5">
         <h2 className="text-h3">{t("settings.language")}</h2>
         <p className="mb-3 text-sm text-muted-foreground">{t("settings.langHint")}</p>
