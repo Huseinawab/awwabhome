@@ -128,6 +128,21 @@ const en = {
   "auth.checkEmail": "Check your email to confirm your account, then log in.", "auth.signedInAs": "Signed in as {e}",
   "auth.synced": "Your progress is saved to your account.", "auth.guest": "You're not signed in. Progress is only saved on this device.",
   "auth.pwShort": "Password must be at least 6 characters.", "auth.busy": "Please wait…",
+  "auth.welcome": "Build your personal life system.", "auth.welcomeSub": "Track what you do.\nUnderstand your progress.\nImprove your life, one step at a time.",
+  "auth.withEmail": "Continue with Email", "auth.name": "Name", "auth.confirm": "Confirm password", "auth.pwMismatch": "Passwords don't match.",
+  "auth.forgot": "Forgot password?", "auth.sendReset": "Send reset link", "auth.resetSent": "If that email has an account, a reset link is on its way.",
+  "auth.resend": "Resend verification email", "auth.resent": "Verification email sent again.", "auth.back": "Back",
+  "auth.err.invalid": "Email or password is incorrect.", "auth.err.unconfirmed": "Please confirm your email first. Check your inbox.",
+  "auth.err.exists": "An account with this email already exists. Try logging in.", "auth.err.network": "Can't reach the server. Check your connection.",
+  "auth.err.weak": "Choose a stronger password (at least 8 characters, not a common one).", "auth.err.email": "Please enter a valid email address.",
+  "auth.err.generic": "Something went wrong. Please try again.",
+  "auth.newPw": "New password", "auth.setPw": "Save new password", "auth.pwSaved": "Password updated.", "auth.resetTitle": "Set a new password",
+  "auth.resetInvalid": "This reset link is invalid or expired. Request a new one.", "auth.changePw": "Change password", "auth.currentPw": "Current password",
+  "auth.profile": "Profile", "auth.saveName": "Save", "auth.security": "Security", "auth.saved": "Saved.",
+  "sync.offline": "Offline — changes will sync when you're back online.", "sync.synced": "Synced", "sync.syncing": "Syncing…", "sync.pending": "Not synced yet — will retry.",
+  "mig.title": "AWWAB data was found on this device.", "mig.body": "Continue to save your existing data to your account and access it across devices.",
+  "mig.import": "Import Data", "mig.fresh": "Start Fresh", "mig.working": "Moving your data…", "mig.done": "Your data has been successfully migrated.",
+  "mig.error": "Migration failed. Your data is still on this device — please try again.", "mig.ok": "OK",
 };
 
 type Key = keyof typeof en;
@@ -240,6 +255,21 @@ const id: Record<Key, string> = {
   "auth.checkEmail": "Cek email kamu untuk konfirmasi akun, lalu masuk.", "auth.signedInAs": "Masuk sebagai {e}",
   "auth.synced": "Progres kamu tersimpan di akun.", "auth.guest": "Kamu belum masuk. Progres hanya tersimpan di perangkat ini.",
   "auth.pwShort": "Kata sandi minimal 6 karakter.", "auth.busy": "Tunggu sebentar…",
+  "auth.welcome": "Bangun sistem hidupmu.", "auth.welcomeSub": "Pantau apa yang kamu lakukan.\nPahami progresmu.\nPerbaiki hidupmu sedikit demi sedikit.",
+  "auth.withEmail": "Lanjutkan dengan Email", "auth.name": "Nama", "auth.confirm": "Ulangi kata sandi", "auth.pwMismatch": "Kata sandi tidak sama.",
+  "auth.forgot": "Lupa kata sandi?", "auth.sendReset": "Kirim tautan reset", "auth.resetSent": "Jika email itu terdaftar, tautan reset sedang dikirim.",
+  "auth.resend": "Kirim ulang email verifikasi", "auth.resent": "Email verifikasi sudah dikirim ulang.", "auth.back": "Kembali",
+  "auth.err.invalid": "Email atau kata sandi salah.", "auth.err.unconfirmed": "Konfirmasi email kamu dulu. Cek kotak masuk.",
+  "auth.err.exists": "Email ini sudah punya akun. Coba masuk.", "auth.err.network": "Tidak bisa terhubung ke server. Cek koneksi kamu.",
+  "auth.err.weak": "Pilih kata sandi yang lebih kuat (minimal 8 karakter, bukan yang umum).", "auth.err.email": "Masukkan alamat email yang valid.",
+  "auth.err.generic": "Ada yang salah. Coba lagi.",
+  "auth.newPw": "Kata sandi baru", "auth.setPw": "Simpan kata sandi baru", "auth.pwSaved": "Kata sandi diperbarui.", "auth.resetTitle": "Buat kata sandi baru",
+  "auth.resetInvalid": "Tautan reset tidak valid atau kedaluwarsa. Minta tautan baru.", "auth.changePw": "Ganti kata sandi", "auth.currentPw": "Kata sandi saat ini",
+  "auth.profile": "Profil", "auth.saveName": "Simpan", "auth.security": "Keamanan", "auth.saved": "Tersimpan.",
+  "sync.offline": "Offline — perubahan akan disinkronkan saat kamu online lagi.", "sync.synced": "Tersinkron", "sync.syncing": "Menyinkronkan…", "sync.pending": "Belum tersinkron — akan dicoba lagi.",
+  "mig.title": "Data AWWAB ditemukan di perangkat ini.", "mig.body": "Kalau kamu lanjut, data yang sudah ada bisa disimpan ke akunmu dan digunakan di perangkat lain.",
+  "mig.import": "Import Data", "mig.fresh": "Mulai Baru", "mig.working": "Memindahkan data…", "mig.done": "Data berhasil dipindahkan.",
+  "mig.error": "Pemindahan gagal. Data masih ada di perangkat ini — coba lagi.", "mig.ok": "Oke",
 };
 
 const DICT: Record<Lang, Record<string, string>> = { en, id };
@@ -249,6 +279,9 @@ const KEY = "awwab:lang";
 let lang: Lang = "id";
 let loaded = false;
 const listeners = new Set<() => void>();
+const langListeners = new Set<(l: Lang) => void>();
+/** Fires only on explicit language changes (used to persist the preference to the account). */
+export const onLangChange = (f: (l: Lang) => void) => { langListeners.add(f); return () => { langListeners.delete(f); }; };
 
 function load() {
   if (loaded || typeof window === "undefined") return;
@@ -276,6 +309,7 @@ export function setLang(l: Lang) {
   }
   document.documentElement.lang = l;
   listeners.forEach((f) => f());
+  langListeners.forEach((f) => f(l));
 }
 
 export const locale = () => (getLang() === "id" ? "id-ID" : "en-US");
