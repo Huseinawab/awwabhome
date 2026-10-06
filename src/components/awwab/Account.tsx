@@ -5,7 +5,7 @@ import { useT, type T } from "@/lib/awwab/i18n";
 import { dismissMigration, importLocalData, startFresh, useAuthUser, useMigration, useSyncStatus } from "@/lib/awwab/sync";
 
 /** Human-readable auth errors; never show raw provider messages. */
-export function authError(t: T, e: { message?: string; code?: string } | null | undefined) {
+export function authError(t: T, e: { message?: string | undefined; code?: string | undefined } | null | undefined) {
   const m = `${e?.code ?? ""} ${e?.message ?? ""}`.toLowerCase();
   if (m.includes("invalid login") || m.includes("invalid_credentials")) return t("auth.err.invalid");
   if (m.includes("not confirmed") || m.includes("email_not_confirmed")) return t("auth.err.unconfirmed");
@@ -153,7 +153,7 @@ export function AccountCard() {
 
   if (!user) return null;
   const hasPassword = user.app_metadata?.providers?.includes("email") ?? user.app_metadata?.provider === "email";
-  const avatar = user.user_metadata?.avatar_url as string | undefined;
+  const avatar = user.user_metadata?.["avatar_url"] as string | undefined;
 
   const saveName = async (e: FormEvent) => {
     e.preventDefault();

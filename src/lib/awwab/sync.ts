@@ -13,7 +13,7 @@ let ready = false;
 let status: SyncStatus = "idle";
 /** Set when a fresh account meets a device with existing data: the user must choose Import / Start Fresh. */
 let migration: "ask" | "working" | "done" | "error" | null = null;
-let snapshot = { user: undefined as User | null | undefined, status, migration };
+let snapshot: { user: User | null | undefined; status: SyncStatus; migration: typeof migration } = { user: undefined, status, migration };
 
 const subs = new Set<() => void>();
 const emit = () => {
