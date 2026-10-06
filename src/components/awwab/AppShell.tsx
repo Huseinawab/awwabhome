@@ -4,6 +4,20 @@ import { BarChart3, CalendarDays, CalendarRange, Home, Lightbulb, NotebookPen, P
 import { useT } from "@/lib/awwab/i18n";
 import { LangSwitch } from "./ui";
 import { useAuthUser } from "@/lib/awwab/sync";
+import { compare } from "@/lib/awwab/calc";
+import { periodFor } from "@/lib/awwab/dates";
+import { useAppState } from "@/lib/awwab/store";
+import { useToday } from "@/lib/awwab/useToday";
+import { resolveCatState } from "@/lib/branding/catStates";
+import { AwwabLogo, useDynamicFavicon } from "@/components/branding/AwwabLogo";
+
+/** Current state of the companion cat, from this week's Life Score (same number Home shows by default). */
+export function useCurrentCatState() {
+  const state = useAppState();
+  const today = useToday();
+  const score = compare(periodFor("week", today), state.entries, today, state.habits).current.lifeScore;
+  return resolveCatState(score);
+}
 
 const NAV = [
   { to: "/home", key: "nav.home", icon: Home },
@@ -26,11 +40,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const mounted = useMounted();
   const t = useT();
   useAuthUser();
+  const cat = useCurrentCatState();
+  useDynamicFavicon(cat);
   return (
     <div className="min-h-screen md:grid md:grid-cols-[232px_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-screen flex-col border-r bg-cream px-4 py-8 md:flex">
         <Link to="/home" className="mb-10 px-3">
-          <span className="font-display text-3xl font-semibold tracking-tight">awwab</span>
+          <AwwabLogo state={cat} size={36} />
           <span className="block text-xs text-muted-foreground">{t("app.tagline")}</span>
         </Link>
         <nav className="flex flex-col gap-1">
@@ -50,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <header className="sticky top-0 z-20 flex items-center justify-between border-b bg-cream/95 px-4 py-2 backdrop-blur md:hidden">
-        <Link to="/home" className="font-display text-2xl font-semibold">awwab</Link>
+        <Link to="/home" aria-label="AWWAB"><AwwabLogo state={cat} size={28} /></Link>
         <div className="flex items-center gap-2">
           {mounted && <LangSwitch />}
           <Link to="/settings" className="btn btn-ghost !p-2" aria-label={t("nav.settings")} activeProps={{ className: "bg-beige" }}>
