@@ -70,7 +70,7 @@ const POSES: Record<CatState, ReactNode> = {
       {tail("M49,33 C54,24 51,14 55,7")}
       {legs(35, 22)}
       <ellipse cx={35} cy={34} rx={16} ry={8} fill={BODY} />
-      <Head x={19} y={19} eyes="happy" smile />
+      <Head x={22} y={23} eyes="happy" smile />
     </>
   ),
 };
