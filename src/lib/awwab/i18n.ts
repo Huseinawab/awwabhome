@@ -249,6 +249,9 @@ const KEY = "awwab:lang";
 let lang: Lang = "id";
 let loaded = false;
 const listeners = new Set<() => void>();
+const langListeners = new Set<(l: Lang) => void>();
+/** Fires only on explicit language changes (used to persist the preference to the account). */
+export const onLangChange = (f: (l: Lang) => void) => { langListeners.add(f); return () => { langListeners.delete(f); }; };
 
 function load() {
   if (loaded || typeof window === "undefined") return;
@@ -276,6 +279,7 @@ export function setLang(l: Lang) {
   }
   document.documentElement.lang = l;
   listeners.forEach((f) => f());
+  langListeners.forEach((f) => f(l));
 }
 
 export const locale = () => (getLang() === "id" ? "id-ID" : "en-US");
