@@ -122,6 +122,12 @@ const en = {
   "habits.err.dup": "A habit with this name already exists in this domain.",
   "habits.historyNote": "Changes apply from today. Past periods keep their old settings.", "habits.custom": "Custom",
   "habits.checkHint": "For daily checklist habits, ticking the box means you hit the target that day.",
+  "auth.title": "Your account", "auth.sub": "Sign in so your progress is saved and available on any device.",
+  "auth.login": "Log in", "auth.signup": "Sign up", "auth.logout": "Log out", "auth.email": "Email", "auth.password": "Password",
+  "auth.google": "Continue with Google", "auth.or": "or", "auth.toSignup": "No account yet? Sign up", "auth.toLogin": "Already have an account? Log in",
+  "auth.checkEmail": "Check your email to confirm your account, then log in.", "auth.signedInAs": "Signed in as {e}",
+  "auth.synced": "Your progress is saved to your account.", "auth.guest": "You're not signed in. Progress is only saved on this device.",
+  "auth.pwShort": "Password must be at least 6 characters.", "auth.busy": "Please wait…",
 };
 
 type Key = keyof typeof en;
@@ -228,6 +234,12 @@ const id: Record<Key, string> = {
   "habits.err.dup": "Kebiasaan dengan nama ini sudah ada di domain ini.",
   "habits.historyNote": "Perubahan berlaku mulai hari ini. Periode sebelumnya tetap memakai pengaturan lama.", "habits.custom": "Buatan sendiri",
   "habits.checkHint": "Untuk checklist harian, mencentang berarti target hari itu tercapai.",
+  "auth.title": "Akun kamu", "auth.sub": "Masuk agar progres kamu tersimpan dan bisa dibuka di perangkat mana pun.",
+  "auth.login": "Masuk", "auth.signup": "Daftar", "auth.logout": "Keluar", "auth.email": "Email", "auth.password": "Kata sandi",
+  "auth.google": "Lanjutkan dengan Google", "auth.or": "atau", "auth.toSignup": "Belum punya akun? Daftar", "auth.toLogin": "Sudah punya akun? Masuk",
+  "auth.checkEmail": "Cek email kamu untuk konfirmasi akun, lalu masuk.", "auth.signedInAs": "Masuk sebagai {e}",
+  "auth.synced": "Progres kamu tersimpan di akun.", "auth.guest": "Kamu belum masuk. Progres hanya tersimpan di perangkat ini.",
+  "auth.pwShort": "Kata sandi minimal 6 karakter.", "auth.busy": "Tunggu sebentar…",
 };
 
 const DICT: Record<Lang, Record<string, string>> = { en, id };
